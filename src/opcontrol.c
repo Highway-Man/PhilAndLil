@@ -93,8 +93,12 @@ void operatorControl() {
 			armSet(127);
 		else if(L2)
 			armSet(-127);
+		else if(encoderGet(armEnc) > 300)
+			armSet(12);
 		else
-			armSet(8);
+			armSet(0);
+
+		printf("%d, ", encoderGet(armEnc));
 
 		delay(25);
 	}
