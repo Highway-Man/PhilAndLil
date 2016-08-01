@@ -160,10 +160,13 @@ typedef enum {
 #define L2	joystickGetDigital(1,5,JOY_DOWN)
 
 //subsystem motor functions
-void lDriveSet(short control);
-void rDriveSet(short control);
-void armSet(short control);
-void intakeSet(short control);
+void lDriveSet(int control);
+void rDriveSet(int control);
+void armSet(int control);
+void intakeSet(int control);
+
+//auton routines
+void standardAuton(void);
 
 // End C++ export structure
 #ifdef __cplusplus

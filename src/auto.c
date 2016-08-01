@@ -36,6 +36,32 @@
 
 #include "main.h"
 
+//set both sides of drive
+void driveSet(int left, int right){
+	lDriveSet(left);
+	rDriveSet(right);
+}
+
+void waitForLift(int target){
+	while(abs(encoderGet(armEnc) - target) > 10)
+		delay(25);
+}
+
+void standardAuton(){
+	intakeSet(-127);
+	delay(500);
+	intakeSet(0);
+	driveSet(60,60);
+	armSet(127);
+	waitForLift(700);
+	armSet(12);
+	delay(200);
+	driveSet(0,0);
+	intakeSet(-127);
+	delay(3000);
+	intakeSet(0);
+}
+
 /**
 * Runs the user autonomous code.
 *
@@ -46,4 +72,5 @@
 * The autonomous task may exit, unlike operatorControl() which should never exit. If it does so, the robot will await a switch to another mode or disable/enable cycle.
 */
 void autonomous() {
+	standardAuton();
 }

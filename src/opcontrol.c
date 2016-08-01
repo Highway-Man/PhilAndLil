@@ -37,21 +37,21 @@
 #include "main.h"
 
 //functions to set our subsystem motors to control values. Some motors need to be reversed
-void lDriveSet(short control){
+void lDriveSet(int control){
 	motorSet(flDrive, control);
 	motorSet(alDrive, -control);
 }
-void rDriveSet(short control){
+void rDriveSet(int control){
 	motorSet(frDrive, -control);
 	motorSet(arDrive, control);
 }
-void armSet(short control){
+void armSet(int control){
 	motorSet(tlArm, control);
 	motorSet(blArm, control);
 	motorSet(trArm, -control);
 	motorSet(brArm, -control);
 }
-void intakeSet(short control){
+void intakeSet(int control){
 	motorSet(lIntake, -control);
 	motorSet(rIntake, control);
 }
@@ -88,7 +88,7 @@ void operatorControl() {
 		else
 			intakeSet(0);
 
-		//set lift motors; apply holding power of 8
+		//set lift motors; apply holding power of 12
 		if(L1)
 			armSet(127);
 		else if(L2)
@@ -98,6 +98,11 @@ void operatorControl() {
 		else
 			armSet(0);
 
+		//auton practice without competition switch
+//		if(joystickGetDigital(1,8,JOY_UP))
+//			standardAuton();
+
+		//print encoder value to terminal
 		printf("%d, ", encoderGet(armEnc));
 
 		delay(25);
