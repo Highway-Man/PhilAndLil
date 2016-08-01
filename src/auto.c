@@ -42,11 +42,14 @@ void driveSet(int left, int right){
 	rDriveSet(right);
 }
 
+//wait for lift to be within 10 ticks of target
 void waitForLift(int target){
 	while(abs(encoderGet(armEnc) - target) > 10)
 		delay(25);
 }
 
+//deploy intake, raise lift & drive to fence, outtake
+//only a framework; will need to be adjusted on actual field
 void standardAuton(){
 	intakeSet(-127);
 	delay(500);
