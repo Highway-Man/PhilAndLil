@@ -46,14 +46,18 @@ void rDriveSet(int control){
 	motorSet(arDrive, control);
 }
 void armSet(int control){
-	motorSet(tlArm, control);
-	motorSet(blArm, control);
-	motorSet(trArm, -control);
-	motorSet(brArm, -control);
+	motorSet(lArm, control);
+	motorSet(rArm, -control);
 }
-void intakeSet(int control){
-	motorSet(lIntake, -control);
-	motorSet(rIntake, control);
+
+void tlDriveSet(int control){
+	motorSet(tlDrive, control);
+}
+void trDriveSet(int control){
+	motorSet(trDrive, control);
+}
+void tArmSet(int control){
+	motorSet(tArm, control);
 }
 
 /**
@@ -80,14 +84,6 @@ void operatorControl() {
 		else
 			rDriveSet(0);
 
-		//set intake motors
-		if(R1)
-			intakeSet(127);
-		else if(R2)
-			intakeSet(-127);
-		else
-			intakeSet(0);
-
 		//set lift motors; apply holding power of 12
 		if(L1)
 			armSet(127);
@@ -102,8 +98,6 @@ void operatorControl() {
 //		if(joystickGetDigital(1,8,JOY_UP))
 //			standardAuton();
 
-		//print encoder value to terminal
-		printf("%d, ", encoderGet(armEnc));
 
 		delay(25);
 	}

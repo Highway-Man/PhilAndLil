@@ -139,12 +139,12 @@ extern Encoder armEnc;
 typedef enum {
 	alDrive = 1,
 	flDrive,
-	tlArm,
-	blArm,
-	lIntake,
-	rIntake,
-	brArm,
-	trArm,
+	lArm,
+	tlDrive,
+	trDrive,
+	tArm,
+	none,
+	rArm,
 	frDrive,
 	arDrive,
 
@@ -159,11 +159,21 @@ typedef enum {
 #define L1	joystickGetDigital(1,5,JOY_UP)
 #define L2	joystickGetDigital(1,5,JOY_DOWN)
 
+//Partner controller definitions
+#define P_L_JOY	joystickGetAnalog(2,3)
+#define	P_R_JOY	joystickGetAnalog(2,2)
+#define P_R1	joystickGetDigital(2,6,JOY_UP)
+#define P_R2	joystickGetDigital(2,6,JOY_DOWN)
+#define P_L1	joystickGetDigital(2,5,JOY_UP)
+#define P_L2	joystickGetDigital(2,5,JOY_DOWN)
+
 //subsystem motor functions
 void lDriveSet(int control);
 void rDriveSet(int control);
 void armSet(int control);
-void intakeSet(int control);
+void tlDriveSet(int control);
+void trDriveSet(int control);
+void tArmSet(int control);
 
 //auton routines
 void standardAuton(void);
