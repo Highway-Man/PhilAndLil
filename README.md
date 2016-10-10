@@ -1,2 +1,2 @@
-# ALBA-OSSR
-ALBA's Open Source Starstruck Robot
+# Phil and Lil
+ALBA's Phil and Lil
