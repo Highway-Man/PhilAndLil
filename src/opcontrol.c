@@ -37,26 +37,26 @@
 #include "main.h"
 
 //functions to set our subsystem motors to control values. Some motors need to be reversed
-void lDriveSet(int control){
+void lDriveSet(int control) {
 	motorSet(flDrive, control);
 	motorSet(alDrive, -control);
 }
-void rDriveSet(int control){
+void rDriveSet(int control) {
 	motorSet(frDrive, -control);
 	motorSet(arDrive, control);
 }
-void armSet(int control){
+void armSet(int control) {
 	motorSet(lArm, control);
 	motorSet(rArm, -control);
 }
 
-void tlDriveSet(int control){
+void tlDriveSet(int control) {
 	motorSet(tlDrive, control);
 }
-void trDriveSet(int control){
-	motorSet(trDrive, control);
+void trDriveSet(int control) {
+	motorSet(trDrive, -control);
 }
-void tArmSet(int control){
+void tArmSet(int control) {
 	motorSet(tArm, control);
 }
 
@@ -72,32 +72,67 @@ void tArmSet(int control){
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 void operatorControl() {
-	while (true)
-	{
+	short armLast = 0;
+	short armTLast = 0;
+	while (true) {
 		//set drive motors with a deadband of 5
-		if(abs(L_JOY) > 5)
+		if (abs(L_JOY) > 5)
 			lDriveSet(L_JOY);
 		else
 			lDriveSet(0);
-		if(abs(R_JOY) > 5)
+		if (abs(R_JOY) > 5)
 			rDriveSet(R_JOY);
 		else
 			rDriveSet(0);
 
 		//set lift motors; apply holding power of 12
-		if(L1)
+
+		if (L1)
 			armSet(127);
-		else if(L2)
+		else if (L2)
 			armSet(-127);
-		else if(encoderGet(armEnc) > 300)
-			armSet(12);
+		else if (R1)
+			armSet(50);
+		else if (R2)
+			armSet(-50);
+		else if (armLast < 0)
+			armSet(-10);
+		else if (armLast > 0 && armLast < 127)
+			armSet(15);
 		else
 			armSet(0);
+		armLast = motorGet(lArm);
+
+//---------------------------------------------------------------------------------------
+
+		if (abs(P_L_JOY) > 5)
+			tlDriveSet(P_L_JOY);
+		else
+			tlDriveSet(0);
+		if (abs(P_R_JOY) > 5)
+			trDriveSet(P_R_JOY);
+		else
+			trDriveSet(0);
+
+		if (P_L1)
+			tArmSet(127);
+		else if (P_L2)
+			tArmSet(-127);
+		else if (P_R1)
+			tArmSet(50);
+		else if (P_R2)
+			tArmSet(-50);
+		else if (armTLast < 0)
+			tArmSet(-10);
+		else if (armTLast > 0 && armTLast < 127)
+			tArmSet(15);
+		else
+			tArmSet(0);
+		armTLast = motorGet(tArm);
 
 		//auton practice without competition switch
 //		if(joystickGetDigital(1,8,JOY_UP))
 //			standardAuton();
-
 
 		delay(25);
 	}
