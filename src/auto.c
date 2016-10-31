@@ -42,8 +42,40 @@ void driveSet(int left, int right){
 	rDriveSet(right);
 }
 
-//wait for lift to be within 10 ticks of target
+//set both sides of lil's drive
+void tDriveSet(int left, int right){
+	tlDriveSet(left);
+	trDriveSet(right);
+}
 
+void destack(int color){
+	tArmSet(80);
+	delay(1000);
+	tArmSet(-80);
+	delay(500);
+	tArmSet(80);
+	delay(100);
+	tArmSet(0);
+	driveSet(-127,-127);
+	tDriveSet(-127,-127);
+	delay(2000);
+	driveSet(color*-127,color*127);
+	tDriveSet(color*127,color*-127);
+	delay(1000);
+	driveSet(0,0);
+	tDriveSet(color*127,color*-127);
+	delay(1000);
+	tDriveSet(127,127);
+	delay(3000);
+	tDriveSet(-127,-127);
+	delay(1000);
+	tArmSet(-127);
+	tDriveSet(127,127);
+	delay(500);
+	tArmSet(0);
+	tDriveSet(0,0);
+
+}
 
 //deploy intake, raise lift & drive to fence, outtake
 //only a framework; will need to be adjusted on actual field
@@ -61,5 +93,5 @@ void standardAuton(){
 * The autonomous task may exit, unlike operatorControl() which should never exit. If it does so, the robot will await a switch to another mode or disable/enable cycle.
 */
 void autonomous() {
-	standardAuton();
+	destack(RED);
 }

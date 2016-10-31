@@ -175,6 +175,9 @@ void tlDriveSet(int control);
 void trDriveSet(int control);
 void tArmSet(int control);
 
+#define	RED	1
+#define	BLUE	-1
+
 //auton routines
 void standardAuton(void);
 
