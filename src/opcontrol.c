@@ -46,8 +46,8 @@ void rDriveSet(int control) {
 	motorSet(arDrive, control);
 }
 void armSet(int control) {
-	motorSet(lArm, control);
-	motorSet(rArm, -control);
+	motorSet(lArm, -control);
+	motorSet(rArm, control);
 }
 
 void tlDriveSet(int control) {
@@ -92,16 +92,16 @@ void operatorControl() {
 		else if (L2)
 			armSet(-127);
 		else if (R1)
-			armSet(50);
+			armSet(80);
 		else if (R2)
-			armSet(-50);
+			armSet(-80);
 		else if (armLast < 0)
-			armSet(-10);
-		else if (armLast > 0 && armLast < 127)
-			armSet(15);
+			armSet(-12);
+		else if (armLast > 0)
+			armSet(12);
 		else
 			armSet(0);
-		armLast = motorGet(lArm);
+		armLast = motorGet(rArm);
 
 //---------------------------------------------------------------------------------------
 
@@ -119,13 +119,13 @@ void operatorControl() {
 		else if (P_L2)
 			tArmSet(-127);
 		else if (P_R1)
-			tArmSet(50);
+			tArmSet(80);
 		else if (P_R2)
-			tArmSet(-50);
+			tArmSet(-80);
 		else if (armTLast < 0)
-			tArmSet(-10);
-		else if (armTLast > 0 && armTLast < 127)
-			tArmSet(15);
+			tArmSet(-12);
+		else if (armTLast > 0)
+			tArmSet(12);
 		else
 			tArmSet(0);
 		armTLast = motorGet(tArm);
@@ -134,6 +134,6 @@ void operatorControl() {
 //		if(joystickGetDigital(1,8,JOY_UP))
 //			standardAuton();
 
-		delay(25);
+		delay(20);
 	}
 }
