@@ -72,6 +72,12 @@ void tArmSet(int control) {
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 void operatorControl() {
+	while(powerLevelBackup() < 100){
+		delay(20);
+	}
+	autonomous();
+	while(1)
+		delay(20);
 	short armLast = 0;
 	short armTLast = 0;
 	while (true) {
