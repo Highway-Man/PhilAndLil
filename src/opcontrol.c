@@ -72,14 +72,17 @@ void tArmSet(int control) {
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 void operatorControl() {
-	while(powerLevelBackup() < 100){
-		delay(20);
-	}
-	autonomous();
-	while(1)
-		delay(20);
+//********AUTON PRACTICE************
+//	while(powerLevelBackup() < 100){
+//		delay(20);
+//	}
+//	autonomous();
+//	while(1)
+//		delay(20);
+//variables to hold previous arm directions
 	short armLast = 0;
 	short armTLast = 0;
+//begin tele-op loop
 	while (true) {
 		//set drive motors with a deadband of 5
 		if (abs(L_JOY) > 5)
@@ -91,26 +94,37 @@ void operatorControl() {
 		else
 			rDriveSet(0);
 
-		//set lift motors; apply holding power of 12
-
+		//set lift motors, 2 different speeds; apply holding power of 12
 		if (L1)
 			armSet(127);
 		else if (L2)
 			armSet(-127);
 		else if (R1)
-			armSet(80);
+			armSet(70);
 		else if (R2)
-			armSet(-80);
+			armSet(-70);
 		else if (armLast < 0)
 			armSet(-12);
 		else if (armLast > 0)
 			armSet(12);
 		else
 			armSet(0);
+
+		if(L1){
+			digitalWrite(LPneuAssist, HIGH);
+			digitalWrite(RPneuAssist, HIGH);
+		}
+		else if(L2 || R2){
+			digitalWrite(LPneuAssist, LOW);
+			digitalWrite(RPneuAssist, LOW);
+		}
+
+		//save previous direction of arm
 		armLast = motorGet(rArm);
 
 //---------------------------------------------------------------------------------------
 
+//base control for second base; deadband of 5 (same as above)
 		if (abs(P_L_JOY) > 5)
 			tlDriveSet(P_L_JOY);
 		else
@@ -120,6 +134,7 @@ void operatorControl() {
 		else
 			trDriveSet(0);
 
+		//arm control of second base (same as above)
 		if (P_L1)
 			tArmSet(127);
 		else if (P_L2)
@@ -134,11 +149,20 @@ void operatorControl() {
 			tArmSet(12);
 		else
 			tArmSet(0);
+		//record last direction
 		armTLast = motorGet(tArm);
 
+		printf("%d, ",encoderGet(tBaseEnc));
+
 		//auton practice without competition switch
-//		if(joystickGetDigital(1,8,JOY_UP))
-//			standardAuton();
+//		if(joystickGetDigital(1,8,JOY_UP)){
+//			encoderReset(baseEnc);
+//			autonomous();
+//		}
+		if(joystickGetDigital(1,8,JOY_DOWN)){
+			encoderReset(baseEnc);
+			encoderReset(tBaseEnc);
+		}
 
 		delay(20);
 	}

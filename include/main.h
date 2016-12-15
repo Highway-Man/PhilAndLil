@@ -133,7 +133,11 @@ void initialize();
  */
 void operatorControl(); 
  
-extern Encoder armEnc;
+extern Encoder baseEnc;
+extern Encoder tBaseEnc;
+
+#define LPneuAssist	6
+#define	RPneuAssist	7
 
 //Motor Port Enumeration (eg port1: aft left Drive)
 typedef enum {
@@ -175,8 +179,12 @@ void tlDriveSet(int control);
 void trDriveSet(int control);
 void tArmSet(int control);
 
+//auton starting tile macros
 #define	RED	1
 #define	BLUE	-1
+
+//return sign
+int sign(int var);
 
 //auton routines
 void standardAuton(void);

@@ -48,46 +48,177 @@ void tDriveSet(int left, int right){
 	trDriveSet(right);
 }
 
+int stop=0;
+//P controller for drving straight
+void straight(long target, int faltDetect){
+	long timeout = abs(target) * 4;
+	long time = 0;
+	int threshold = 30; //how close is good enough
+	float kP = .4;	//scale error for reasonable motor control values
+	//calculate error
+	long error = target - encoderGet(baseEnc);
+	long initialError=error;
+	//set drive proportional to error while greater than threshold
+	while(abs(error) > threshold && time < timeout && stop==0){
+		error = target - encoderGet(baseEnc);
+		driveSet((kP*error),(kP*error));
+		time += 20;
+		printf("%d, ",encoderGet(baseEnc));
+		delay(20);
+	} //apply braking power
+	if(time>=timeout && faltDetect == 1)
+		stop=1;
+	driveSet(-1*sign(initialError)*11, -1*sign(initialError)*11);
+	encoderReset(baseEnc);
+	delay(100);
+}
+
+//P controller for turning
+void turn(long target){
+	int threshold = 30;	//how close is good enough
+	float kP = .5; //proportional constant
+	long timeout = abs(target) * 5;
+	long time = 0;
+	//calculate error
+	long error = target - encoderGet(baseEnc);
+	long initialError = error;
+	//set drive proportional to error while above threshold
+	while(abs(error) > threshold && time < timeout && !stop){
+		error = target - encoderGet(baseEnc);
+		driveSet((kP*error),-(kP*error));
+		time += 20;
+		printf("%d, ",encoderGet(baseEnc));
+		delay(20);
+	}
+	//brake!
+	driveSet(-1*sign(initialError)*5, 1*sign(initialError)*5);
+	encoderReset(baseEnc);
+	delay(100);
+}
+
+//P controller for turning
+void tTurn(long target){
+	int threshold = 30;	//how close is good enough
+	float kP = .9; //proportional constant
+	long timeout = abs(target) * 5;
+	long time = 0;
+	//calculate error
+	long error = target - encoderGet(tBaseEnc);
+	long initialError = error;
+	//set drive proportional to error while above threshold
+	while(abs(error) > threshold && time < timeout){
+		error = target - encoderGet(tBaseEnc);
+		tDriveSet((kP*error),-(kP*error));
+		time += 20;
+		printf("%d, ",encoderGet(tBaseEnc));
+		delay(20);
+	}
+	//brake!
+	tDriveSet(-1*sign(initialError)*5, 1*sign(initialError)*5);
+	encoderReset(tBaseEnc);
+	delay(100);
+}
+
+//subroutine for destacking
 void destack(int color){
+	int time=0;
+	//release bottom scoop
 	tArmSet(80);
 	delay(500);
 	tArmSet(-80);
 	delay(700);
 	tArmSet(80);
+	armSet(-80);
 	delay(120);
 	tArmSet(-8);
+	armSet(-8);
 	delay(100);
+	//back off to destack
 	driveSet(-127,-127);
 	tDriveSet(-127,-127);
 	delay(600);
 	driveSet(0,0);
-	tDriveSet(-127,-127);
-	delay(1500);
-	driveSet(color*-127,color*127);
-	tDriveSet(color*127,color*-127);
-	delay(500);
+	tDriveSet(-127,-100);
+	delay(2200);
+	//turn 90 degrees away from each other
+	tDriveSet(0,0);
+	encoderReset(tBaseEnc);
+	encoderReset(baseEnc);
+	time=0;
+	while(abs(encoderGet(baseEnc)) < 380 && time < 1200){
+		driveSet(color*-127,color*127);
+		time+=20;
+		delay(20);
+	}
+	driveSet(color*12,color*-12);
+	tArmSet(-100);
+	delay(250);
+	tArmSet(-12);
+	time=0;
+	while(abs(encoderGet(tBaseEnc)) < 600 && time < 1500){
+			tDriveSet(color*127,color*-127);
+			time+=20;
+			delay(20);
+		}
+	tDriveSet(color*-12,color*12);
+	//delay(500);
+	//lil turns 90 degrees more
 	driveSet(0,0);
-	tDriveSet(color*127,color*-127);
-	delay(300);
+	//tDriveSet(color*127,color*-127);
+	//delay(500);
+	//Lil drives away
 	tDriveSet(127,127);
 	delay(2200);
-	tDriveSet(-127,-127);
-	delay(500);
 	tDriveSet(0,0);
-	tArmSet(-127);
-	delay(500);
-	tArmSet(-12);
-	tDriveSet(-127,-127);
-	delay(800);
-	tDriveSet(127,127);
-	delay(500);
-	tDriveSet(-127,-127);
-	delay(500);
-	tDriveSet(127,127);
-	delay(700);
-	tArmSet(0);
-	tDriveSet(0,0);
+//	tDriveSet(-127,-127);
+//	delay(500);
+//	//shake Lil's scoop down
+//	tDriveSet(0,0);
+//	tArmSet(-127);
+//	delay(500);
+//	tArmSet(-12);
+//	tDriveSet(-127,-127);
+//	delay(800);
+//	tDriveSet(127,127);
+//	delay(500);
+//	tDriveSet(-127,-127);
+//	delay(500);
+//	tDriveSet(127,127);
+//	delay(700);
+//	tArmSet(0);
+//	tDriveSet(0,0);
+}
 
+void philScore(int color){
+//	driveSet(-127,-127);
+//	delay(400);
+//	driveSet(0,0);
+	encoderReset(baseEnc);
+	//raise arm to fence height
+	armSet(100);
+	delay(350);
+	armSet(5);
+	//drive into fence
+	straight(1100,0);
+	//backup, turn, and repeat
+	straight(-300,1);
+	turn(color*380);
+	straight(500,1);
+	turn(color*-360);
+	straight(300,0);
+	straight(-200,1);
+	turn(color*360);
+	straight(700,1);
+	turn(color*-360);
+	armSet(-100);
+	delay(175);
+	armSet(5);
+	straight(200,0);
+	straight(-100,1);
+	turn(color*360);
+	straight(700,1);
+	turn(color*-360);
+	straight(200,0);
 }
 
 //deploy intake, raise lift & drive to fence, outtake
@@ -106,5 +237,12 @@ void standardAuton(){
 * The autonomous task may exit, unlike operatorControl() which should never exit. If it does so, the robot will await a switch to another mode or disable/enable cycle.
 */
 void autonomous() {
-	destack(RED);
+	int color;
+	if(!digitalRead(9))
+		color=BLUE;
+	else
+		color=RED;
+
+	destack(color);
+	philScore(color);
 }
