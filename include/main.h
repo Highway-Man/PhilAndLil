@@ -138,6 +138,7 @@ extern Encoder tBaseEnc;
 
 #define LPneuAssist	6
 #define	RPneuAssist	7
+#define TPneuAssist	1
 
 //Motor Port Enumeration (eg port1: aft left Drive)
 typedef enum {

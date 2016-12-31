@@ -44,12 +44,17 @@
  * The purpose of this function is solely to set the default pin modes (pinMode()) and port states (digitalWrite()) of limit switches, push buttons, and solenoids. It can also safely configure a UART port (usartOpen()) but cannot set up an LCD (lcdInit()).
  */
 void initializeIO() {
-digitalWrite(6, LOW);
-pinMode(6, OUTPUT);
-digitalWrite(7, LOW);
-pinMode(7, OUTPUT);
-pinMode(11, INPUT);
-pinMode(12, INPUT);
+	//tether pneumatic solenoids
+	digitalWrite(1, LOW);
+	pinMode(1, OUTPUT);
+	//left and right pneumatic solenoids
+	digitalWrite(6, LOW);
+	pinMode(6, OUTPUT);
+	digitalWrite(7, LOW);
+	pinMode(7, OUTPUT);
+	//jumper positions
+	pinMode(11, INPUT);
+	pinMode(12, INPUT);
 
 }
 
@@ -67,10 +72,9 @@ pinMode(12, INPUT);
 Encoder baseEnc;
 Encoder tBaseEnc;
 
- 
- void initialize() { 
+void initialize() {
 	baseEnc = encoderInit(4, 5, false);
-	tBaseEnc = encoderInit(2, 3,true);
+	tBaseEnc = encoderInit(2, 3, true);
 
 }
 //return sign of a variable

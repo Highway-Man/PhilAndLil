@@ -149,6 +149,11 @@ void operatorControl() {
 			tArmSet(12);
 		else
 			tArmSet(0);
+
+		if(P_L1)
+			digitalWrite(TPneuAssist, HIGH);
+		else if(P_L2 || P_R2)
+			digitalWrite(TPneuAssist, LOW);
 		//record last direction
 		armTLast = motorGet(tArm);
 
