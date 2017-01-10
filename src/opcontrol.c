@@ -150,6 +150,7 @@ void operatorControl() {
 		else
 			tArmSet(0);
 
+		//pneu assist for lil
 		if(P_L1)
 			digitalWrite(TPneuAssist, HIGH);
 		else if(P_L2 || P_R2)
@@ -157,13 +158,13 @@ void operatorControl() {
 		//record last direction
 		armTLast = motorGet(tArm);
 
-		printf("%d, ",encoderGet(tBaseEnc));
+		//printf("%d, ",encoderGet(tBaseEnc));
 
 		//auton practice without competition switch
-//		if(joystickGetDigital(1,8,JOY_UP)){
-//			encoderReset(baseEnc);
-//			autonomous();
-//		}
+		//if(joystickGetDigital(1,8,JOY_UP)){
+			encoderReset(baseEnc);
+			autonomous();
+		//}
 		if(joystickGetDigital(1,8,JOY_DOWN)){
 			encoderReset(baseEnc);
 			encoderReset(tBaseEnc);

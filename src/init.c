@@ -76,8 +76,54 @@ void initialize() {
 	baseEnc = encoderInit(4, 5, false);
 	tBaseEnc = encoderInit(2, 3, true);
 
+	TaskHandle velocityTaskHandle = taskCreate(velocityUpdate,
+			TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
 }
+
+float bVelocity = 0, tVelocity = 0;
+void velocityUpdate(void * parameter) {
+	int bEncLast, tEncLast, bEncDelta, tEncDelta;
+	int bTimeLast, tTimeLast, bTimeDelta, tTimeDelta;
+	while (true) {
+		bEncLast = encoderGet(baseEnc);
+		bTimeLast = micros();
+		tEncLast = encoderGet(tBaseEnc);
+		tTimeLast = micros();
+		delay(200);
+		bEncDelta = encoderGet(baseEnc) - bEncLast;
+		bTimeDelta = micros() - bTimeLast;
+		tEncDelta = encoderGet(tBaseEnc) - tEncLast;
+		tTimeDelta = micros() - tTimeLast;
+		bVelocity = bVelocity * .5 + .5 * bEncDelta / bTimeDelta;
+		tVelocity = tVelocity * .5 + .5 * tEncDelta / tTimeDelta;
+		//printf("%f, ", bVelocity);
+	}
+}
+
+float velocityGet(bool tether) {
+	if (tether)
+		return tVelocity;
+	else
+		return bVelocity;
+}
+
 //return sign of a variable
 int sign(int var) {
 	return var / abs(var);
 }
+
+const int trueBaseSpeed[235] = { -110, -108, -106, -104, -102, -101, -99, -97,
+		-95, -93, -91, -90, -88, -86, -85, -83, -81, -80, -78, -77, -75, -74,
+		-72, -71, -69, -68, -66, -65, -64, -62, -61, -60, -58, -57, -56, -55,
+		-53, -52, -51, -50, -49, -48, -47, -46, -45, -44, -43, -42, -41, -40,
+		-39, -38, -37, -36, -35, -34, -33, -32, -32, -31, -30, -29, -28, -28,
+		-27, -26, -25, -25, -24, -23, -23, -22, -21, -21, -20, -19, -19, -18,
+		-18, -17, -16, -16, -15, -15, -14, 14, -13, -13, -12, -12, -11, -11,
+		-10, -10, -9, -9, -8, -8, -7, -7, -7, -6, 6, -5, -5, -4, -4, -4, -3, -3,
+		-2, -2, -2, -1, -1, 0, 0, 0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 6, 6,
+		6, 7, 7, 8, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 13, 14, 14, 15,
+		16, 16, 17, 17, 18, 18, 19, 19, 20, 21, 21, 22, 22, 23, 24, 24, 25, 26,
+		26, 27, 28, 28, 29, 30, 31, 31, 32, 33, 34, 35, 35, 36, 37, 38, 39, 40,
+		41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 56, 57, 58, 59,
+		61, 62, 63, 64, 66, 67, 68, 70, 71, 73, 74, 76, 77, 79, 80, 82, 83, 85,
+		87, 88, 90, 92, 93, 95, 97, 99, 101, 103, 104 };

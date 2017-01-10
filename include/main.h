@@ -187,6 +187,11 @@ void tArmSet(int control);
 //return sign
 int sign(int var);
 
+void velocityUpdate(void * parameter);
+float velocityGet(bool tether);
+
+const int trueBaseSpeed[235];
+
 //auton routines
 void standardAuton(void);
 

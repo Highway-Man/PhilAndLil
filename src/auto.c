@@ -51,9 +51,10 @@ void tDriveSet(int left, int right){
 int stop=0;
 //P controller for drving straight
 void straight(long target, int faltDetect){
-	long timeout = abs(target) * 4;
+	long timeout = abs(target) * 3;
 	long time = 0;
-	int threshold = 30; //how close is good enough
+	int threshold = 20; //how close is good enough
+	int driveCommand;
 	float kP = .4;	//scale error for reasonable motor control values
 	//calculate error
 	long error = target - encoderGet(baseEnc);
@@ -61,60 +62,108 @@ void straight(long target, int faltDetect){
 	//set drive proportional to error while greater than threshold
 	while(abs(error) > threshold && time < timeout && stop==0){
 		error = target - encoderGet(baseEnc);
-		driveSet((kP*error),(kP*error));
+		driveCommand = error*kP+117;
+		if(driveCommand > 234)
+			driveCommand = 234;
+		else if(driveCommand < 0)
+			driveCommand = 0;
+		driveSet(trueBaseSpeed[driveCommand],trueBaseSpeed[driveCommand]);
 		time += 20;
 		printf("%d, ",encoderGet(baseEnc));
 		delay(20);
 	} //apply braking power
 	if(time>=timeout && faltDetect == 1)
 		stop=1;
-	driveSet(-1*sign(initialError)*11, -1*sign(initialError)*11);
+	driveSet(-1*sign(velocityGet(0))*11, -1*sign(velocityGet(0))*11);
 	encoderReset(baseEnc);
 	delay(100);
 }
 
 //P controller for turning
 void turn(long target){
-	int threshold = 30;	//how close is good enough
+	int threshold = 20;	//how close is good enough
 	float kP = .5; //proportional constant
 	long timeout = abs(target) * 5;
 	long time = 0;
+	int driveCommand;
 	//calculate error
 	long error = target - encoderGet(baseEnc);
 	long initialError = error;
 	//set drive proportional to error while above threshold
 	while(abs(error) > threshold && time < timeout && !stop){
 		error = target - encoderGet(baseEnc);
-		driveSet((kP*error),-(kP*error));
+		driveCommand = kP*error+117;
+		if(driveCommand > 234)
+			driveCommand = 234;
+		else if(driveCommand < 0)
+			driveCommand = 0;
+		driveSet(trueBaseSpeed[driveCommand],-trueBaseSpeed[driveCommand]);
 		time += 20;
 		printf("%d, ",encoderGet(baseEnc));
 		delay(20);
 	}
 	//brake!
-	driveSet(-1*sign(initialError)*5, 1*sign(initialError)*5);
+	driveSet(-1*sign(initialError)*8, 1*sign(initialError)*8);
 	encoderReset(baseEnc);
+	delay(100);
+}
+
+int tStop=0;
+//P controller for drving straight
+void tStraight(long target, int faltDetect){
+	long timeout = abs(target) * 3;
+	long time = 0;
+	int threshold = 20; //how close is good enough
+	int driveCommand;
+	float kP = .4;	//scale error for reasonable motor control values
+	//calculate error
+	long error = target - encoderGet(tBaseEnc);
+	long initialError=error;
+	//set drive proportional to error while greater than threshold
+	while(abs(error) > threshold && time < timeout && stop==0){
+		error = target - encoderGet(tBaseEnc);
+		driveCommand = error*kP+117;
+		if(driveCommand > 234)
+			driveCommand = 234;
+		else if(driveCommand < 0)
+			driveCommand = 0;
+		tDriveSet(trueBaseSpeed[driveCommand],trueBaseSpeed[driveCommand]);
+		time += 20;
+		printf("%d, ",encoderGet(tBaseEnc));
+		delay(20);
+	} //apply braking power
+	if(time>=timeout && faltDetect == 1)
+		stop=1;
+	driveSet(-1*sign(velocityGet(1))*11, -1*sign(velocityGet(1))*11);
+	encoderReset(tBaseEnc);
 	delay(100);
 }
 
 //P controller for turning
 void tTurn(long target){
-	int threshold = 30;	//how close is good enough
-	float kP = .9; //proportional constant
+	int threshold = 20;	//how close is good enough
+	float kP = .5; //proportional constant
 	long timeout = abs(target) * 5;
 	long time = 0;
+	int driveCommand;
 	//calculate error
 	long error = target - encoderGet(tBaseEnc);
 	long initialError = error;
 	//set drive proportional to error while above threshold
-	while(abs(error) > threshold && time < timeout){
+	while(abs(error) > threshold && time < timeout && !stop){
 		error = target - encoderGet(tBaseEnc);
-		tDriveSet((kP*error),-(kP*error));
+		driveCommand = kP*error+117;
+		if(driveCommand > 234)
+			driveCommand = 234;
+		else if(driveCommand < 0)
+			driveCommand = 0;
+		tDriveSet(trueBaseSpeed[driveCommand],-trueBaseSpeed[driveCommand]);
 		time += 20;
 		printf("%d, ",encoderGet(tBaseEnc));
 		delay(20);
 	}
 	//brake!
-	tDriveSet(-1*sign(initialError)*5, 1*sign(initialError)*5);
+	tDriveSet(-1*sign(initialError)*8, 1*sign(initialError)*8);
 	encoderReset(tBaseEnc);
 	delay(100);
 }
@@ -227,6 +276,22 @@ void standardAuton(){
 
 }
 
+void calBase(){
+	for(int i = 0; i < 128; i++){
+		driveSet(i,i);
+		delay(2000);
+		printf("%d,%f;", motorGet(flDrive), velocityGet(0));
+		driveSet(-7,-7);
+		delay(1000);
+		driveSet(-i,-i);
+		delay(2000);
+		printf("%d,%f;", motorGet(flDrive), velocityGet(0));
+		driveSet(7,7);
+		delay(1000);
+	}
+}
+
+
 /**
 * Runs the user autonomous code.
 *
@@ -237,12 +302,8 @@ void standardAuton(){
 * The autonomous task may exit, unlike operatorControl() which should never exit. If it does so, the robot will await a switch to another mode or disable/enable cycle.
 */
 void autonomous() {
-	int color;
-	if(!digitalRead(9))
-		color=BLUE;
-	else
-		color=RED;
-
-	destack(color);
-	philScore(color);
+	delay(5000);
+	straight(-1000,0);
+	delay(5000);
 }
+
