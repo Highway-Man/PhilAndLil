@@ -51,11 +51,11 @@ void tDriveSet(int left, int right){
 int stop=0;
 //P controller for drving straight
 void straight(long target, int faltDetect){
-	long timeout = abs(target) * 3;
+	long timeout = abs(target) * 4;
 	long time = 0;
 	int threshold = 20; //how close is good enough
 	int driveCommand;
-	float kP = .4;	//scale error for reasonable motor control values
+	float kP = 1.5;	//scale error for reasonable motor control values
 	//calculate error
 	long error = target - encoderGet(baseEnc);
 	long initialError=error;
@@ -81,9 +81,9 @@ void straight(long target, int faltDetect){
 
 //P controller for turning
 void turn(long target){
-	int threshold = 20;	//how close is good enough
-	float kP = .5; //proportional constant
-	long timeout = abs(target) * 5;
+	int threshold = 12;	//how close is good enough
+	float kP = 2; //proportional constant
+	long timeout = abs(target) * 3;
 	long time = 0;
 	int driveCommand;
 	//calculate error
@@ -103,19 +103,19 @@ void turn(long target){
 		delay(20);
 	}
 	//brake!
-	driveSet(-1*sign(initialError)*8, 1*sign(initialError)*8);
+	driveSet(-1*sign(initialError)*11, 1*sign(initialError)*11);
 	encoderReset(baseEnc);
 	delay(100);
 }
 
-int tStop=0;
+int stopt=0;
 //P controller for drving straight
 void tStraight(long target, int faltDetect){
-	long timeout = abs(target) * 3;
+	long timeout = abs(target) * 4;
 	long time = 0;
 	int threshold = 20; //how close is good enough
 	int driveCommand;
-	float kP = .4;	//scale error for reasonable motor control values
+	float kP = 1.5;	//scale error for reasonable motor control values
 	//calculate error
 	long error = target - encoderGet(tBaseEnc);
 	long initialError=error;
@@ -141,9 +141,9 @@ void tStraight(long target, int faltDetect){
 
 //P controller for turning
 void tTurn(long target){
-	int threshold = 20;	//how close is good enough
-	float kP = .5; //proportional constant
-	long timeout = abs(target) * 5;
+	int threshold = 12;	//how close is good enough
+	float kP = 2; //proportional constant
+	long timeout = abs(target) * 3;
 	long time = 0;
 	int driveCommand;
 	//calculate error
@@ -163,7 +163,7 @@ void tTurn(long target){
 		delay(20);
 	}
 	//brake!
-	tDriveSet(-1*sign(initialError)*8, 1*sign(initialError)*8);
+	tDriveSet(-1*sign(initialError)*11, 1*sign(initialError)*11);
 	encoderReset(tBaseEnc);
 	delay(100);
 }
@@ -303,7 +303,9 @@ void calBase(){
 */
 void autonomous() {
 	delay(5000);
-	straight(-1000,0);
+	tStraight(600,0);
+	delay(5000);
+	tStraight(-600,0);
 	delay(5000);
 }
 
