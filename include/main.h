@@ -190,6 +190,10 @@ int sign(int var);
 void velocityUpdate(void * parameter);
 float velocityGet(bool tether);
 
+TaskHandle autonPhilHandle;
+TaskHandle autonLilHandle;
+
+
 const int trueBaseSpeed[235];
 
 //auton routines
