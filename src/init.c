@@ -76,8 +76,8 @@ void initialize() {
 	baseEnc = encoderInit(4, 5, false);
 	tBaseEnc = encoderInit(2, 3, true);
 
-	TaskHandle velocityTaskHandle = taskCreate(velocityUpdate,
-			TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
+	//TaskHandle velocityTaskHandle = taskCreate(velocityUpdate,
+			//TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
 }
 
 float bVelocity = 0, tVelocity = 0;

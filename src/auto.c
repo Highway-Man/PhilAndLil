@@ -74,7 +74,7 @@ void straight(long target, int faltDetect) {
 	} //apply braking power
 	if (time >= timeout && faltDetect == 1)
 		stop = 1;
-	driveSet(-1 * sign(velocityGet(0)) * 11, -1 * sign(velocityGet(0)) * 11);
+	driveSet(-1 * sign(initialError) * 11, -1 * sign(initialError) * 11);
 	encoderReset(baseEnc);
 	delay(100);
 }
@@ -82,7 +82,7 @@ void straight(long target, int faltDetect) {
 //P controller for turning
 void turn(long target) {
 	int threshold = 12;	//how close is good enough
-	float kP = 1.5; //proportional constant
+	float kP = 1.0; //proportional constant
 	long timeout = abs(target) * 3;
 	long time = 0;
 	int driveCommand;
@@ -134,9 +134,10 @@ void tStraight(long target, int faltDetect) {
 	} //apply braking power
 	if (time >= timeout && faltDetect == 1)
 		stop = 1;
-	driveSet(-1 * sign(velocityGet(1)) * 11, -1 * sign(velocityGet(1)) * 11);
+	driveSet(-1 * sign(initialError) * 11, -1 * sign(initialError) * 11);
+	delay(200);
 	encoderReset(tBaseEnc);
-	delay(100);
+	delay(10);
 }
 
 //P controller for turning
@@ -164,8 +165,9 @@ void tTurn(long target) {
 	}
 	//brake!
 	tDriveSet(-1 * sign(initialError) * 11, 1 * sign(initialError) * 11);
+	delay(200);
 	encoderReset(tBaseEnc);
-	delay(100);
+	delay(10);
 }
 
 #define timeToRaise	300
@@ -180,32 +182,57 @@ void separatePhil(int color) {
 	delay(3000);
 }
 void scorePhil(int color) {
-	turn(-600);
-	straight(750, 0);
 	turn(-550);
-	straight(-650, 0);
+	straight(600, 0);
+	turn(-550);
+	straight(-700, 0);
 	armSet(-127);
-	delay(1400);
+	delay(1600);
 	armSet(-10);
-	straight(950, 0);
+	encoderReset(baseEnc);
+	delay(10);
+	turn(100);
+	straight(850, 0);
 	armSet(127);
-	delay(200);
+	delay(400);
 	straight(-900, 0);
+	delay(100);
 	armSet(0);
 	driveSet(0, 0);
 }
 void separateLil(int color) {
 	tArmSet(80);
 	delay(timeToRaise);
-	tArmSet(-8);
+	tArmSet(0);
 	encoderReset(tBaseEnc);
 	delay(100);
 	tStraight(-1000, 0);
 	tArmSet(-127);
-	delay(1000);
+	delay(1600);
+	tArmSet(-5);
+	tStraight(-1200, 0);
+	tDriveSet(0, 0);
+}
+void scoreLil(int color) {
+	tArmSet(127);
+	delay(150);
+	tArmSet(-1);
+	tTurn(600);
+	tStraight(750, 0);
+	tTurn(550);
+	tStraight(-700, 0);
+	tArmSet(-127);
+	delay(1300);
+	tArmSet(-10);
+	encoderReset(tBaseEnc);
+	tTurn(-100);
+	tStraight(870, 0);
+	tArmSet(127);
+	delay(500);
+	tStraight(-900, 0);
+	delay(100);
 	tArmSet(0);
-	tStraight(-1500, 0);
-	tDriveSet(0,0);
+	tDriveSet(0, 0);
 }
 
 //deploy intake, raise lift & drive to fence, outtake
@@ -237,6 +264,7 @@ void autonPhil(void * parameter) {
 
 void autonLil(void * parameter) {
 	separateLil(0);
+	scoreLil(0);
 	taskDelete(autonLilHandle);
 }
 
@@ -252,11 +280,12 @@ void autonLil(void * parameter) {
 void autonomous() {
 	delay(5000);
 	autonPhilHandle = taskCreate(autonPhil, TASK_DEFAULT_STACK_SIZE, NULL,
-			TASK_PRIORITY_DEFAULT);
+	TASK_PRIORITY_DEFAULT);
 	autonLilHandle = taskCreate(autonLil, TASK_DEFAULT_STACK_SIZE, NULL,
-			TASK_PRIORITY_DEFAULT);
+	TASK_PRIORITY_DEFAULT);
 	print("done");
 	delay(5000);
-	while (1)
+	while (1){
 		delay(20);
+	}
 }

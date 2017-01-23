@@ -76,9 +76,9 @@ void operatorControl() {
 //	while(powerLevelBackup() < 100){
 //		delay(20);
 //	}
-//	autonomous();
-//	while(1)
-//		delay(20);
+	autonomous();
+	while(1)
+		delay(20);
 //variables to hold previous arm directions
 	short armLast = 0;
 	short armTLast = 0;
@@ -162,8 +162,8 @@ void operatorControl() {
 
 		//auton practice without competition switch
 		//if(joystickGetDigital(1,8,JOY_UP)){
-			encoderReset(baseEnc);
-			autonomous();
+		//	encoderReset(baseEnc);
+		//	autonomous();
 		//}
 		if(joystickGetDigital(1,8,JOY_DOWN)){
 			encoderReset(baseEnc);
