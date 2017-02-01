@@ -278,7 +278,7 @@ void autonLil(void * parameter) {
  * The autonomous task may exit, unlike operatorControl() which should never exit. If it does so, the robot will await a switch to another mode or disable/enable cycle.
  */
 void autonomous() {
-	delay(5000);
+	//delay(5000);
 	autonPhilHandle = taskCreate(autonPhil, TASK_DEFAULT_STACK_SIZE, NULL,
 	TASK_PRIORITY_DEFAULT);
 	autonLilHandle = taskCreate(autonLil, TASK_DEFAULT_STACK_SIZE, NULL,

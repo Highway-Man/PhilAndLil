@@ -76,9 +76,9 @@ void operatorControl() {
 //	while(powerLevelBackup() < 100){
 //		delay(20);
 //	}
-	autonomous();
-	while(1)
-		delay(20);
+//	autonomous();
+//	while(1)
+//		delay(20);
 //variables to hold previous arm directions
 	short armLast = 0;
 	short armTLast = 0;
