@@ -48,6 +48,13 @@ void tDriveSet(int left, int right) {
 	trDriveSet(right);
 }
 
+void clawSet(int state){
+	digitalWrite(RPneuAssist, state);
+}
+void tClawSet(int state){
+	digitalWrite(TPneuAssist, state);
+}
+
 int stop = 0;
 //P controller for drving straight
 void straight(long target, int faltDetect) {

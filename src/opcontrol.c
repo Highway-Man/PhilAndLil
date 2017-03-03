@@ -110,13 +110,11 @@ void operatorControl() {
 		else
 			armSet(0);
 
-		if(L1){
-			digitalWrite(LPneuAssist, HIGH);
-			digitalWrite(RPneuAssist, HIGH);
+		if(X){
+			clawSet(OPEN);
 		}
-		else if(L2 || R2){
-			digitalWrite(LPneuAssist, LOW);
-			digitalWrite(RPneuAssist, LOW);
+		else if(V){
+			clawSet(CLOSE);
 		}
 
 		//save previous direction of arm
@@ -125,11 +123,11 @@ void operatorControl() {
 //---------------------------------------------------------------------------------------
 
 //base control for second base; deadband of 5 (same as above)
-		if (abs(P_L_JOY) > 5)
+		if (abs(P_L_JOY) > 10)
 			tlDriveSet(P_L_JOY);
 		else
 			tlDriveSet(0);
-		if (abs(P_R_JOY) > 5)
+		if (abs(P_R_JOY) > 10)
 			trDriveSet(P_R_JOY);
 		else
 			trDriveSet(0);
@@ -140,21 +138,22 @@ void operatorControl() {
 		else if (P_L2)
 			tArmSet(-127);
 		else if (P_R1)
-			tArmSet(80);
+			tArmSet(120);
 		else if (P_R2)
-			tArmSet(-80);
-		else if (armTLast < 0)
-			tArmSet(-12);
-		else if (armTLast > 0)
-			tArmSet(12);
+			tArmSet(-120);
+		else if (armTLast == -127 || armTLast == -7)
+			tArmSet(-7);
+		else if (armTLast == 127 || armTLast == 7)
+			tArmSet(7);
 		else
 			tArmSet(0);
 
 		//pneu assist for lil
-		if(P_L1)
-			digitalWrite(TPneuAssist, HIGH);
-		else if(P_L2 || P_R2)
-			digitalWrite(TPneuAssist, LOW);
+		if(P_X)
+			tClawSet(OPEN);
+		else if(P_V)
+			tClawSet(CLOSE);
+
 		//record last direction
 		armTLast = motorGet(tArm);
 

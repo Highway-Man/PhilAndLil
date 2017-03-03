@@ -163,6 +163,8 @@ typedef enum {
 #define R2	joystickGetDigital(1,6,JOY_DOWN)
 #define L1	joystickGetDigital(1,5,JOY_UP)
 #define L2	joystickGetDigital(1,5,JOY_DOWN)
+#define X	joystickGetDigital(1,8,JOY_DOWN)
+#define	V	joystickGetDigital(1,8,JOY_UP)
 
 //Partner controller definitions
 #define P_L_JOY	joystickGetAnalog(2,3)
@@ -171,14 +173,22 @@ typedef enum {
 #define P_R2	joystickGetDigital(2,6,JOY_DOWN)
 #define P_L1	joystickGetDigital(2,5,JOY_UP)
 #define P_L2	joystickGetDigital(2,5,JOY_DOWN)
+#define P_X		joystickGetDigital(2,8,JOY_DOWN)
+#define	P_V		joystickGetDigital(2,8,JOY_UP)
 
 //subsystem motor functions
 void lDriveSet(int control);
 void rDriveSet(int control);
 void armSet(int control);
+void clawSet(int state);
 void tlDriveSet(int control);
 void trDriveSet(int control);
 void tArmSet(int control);
+void tClawSet(int state);
+
+//Claw states
+#define OPEN	1
+#define	CLOSE	0
 
 //auton starting tile macros
 #define	RED	1
