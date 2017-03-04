@@ -76,7 +76,8 @@ void operatorControl() {
 //	while(powerLevelBackup() < 100){
 //		delay(20);
 //	}
-//	autonomous();
+	delay(2000);
+	autonomous();
 //	while(1)
 //		delay(20);
 //variables to hold previous arm directions
@@ -110,6 +111,7 @@ void operatorControl() {
 		else
 			armSet(0);
 
+		//Phil pneu claw
 		if(X){
 			clawSet(OPEN);
 		}
@@ -148,7 +150,7 @@ void operatorControl() {
 		else
 			tArmSet(0);
 
-		//pneu assist for lil
+		//pneu claw for lil
 		if(P_X)
 			tClawSet(OPEN);
 		else if(P_V)
@@ -156,6 +158,8 @@ void operatorControl() {
 
 		//record last direction
 		armTLast = motorGet(tArm);
+
+		//debugging/auton practice
 
 		//printf("%d, ",encoderGet(tBaseEnc));
 

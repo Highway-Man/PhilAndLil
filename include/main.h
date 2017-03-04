@@ -197,13 +197,15 @@ void tClawSet(int state);
 //return sign
 int sign(int var);
 
+//unused drive velocity functions
 void velocityUpdate(void * parameter);
 float velocityGet(bool tether);
 
+//create autonomous task handles
 TaskHandle autonPhilHandle;
 TaskHandle autonLilHandle;
 
-
+//declare linearized drive control values array
 const int trueBaseSpeed[235];
 
 //auton routines

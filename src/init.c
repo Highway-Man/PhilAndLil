@@ -68,11 +68,12 @@ void initializeIO() {
  * This function must exit relatively promptly, or the operatorControl() and autonomous() tasks will not start. An autonomous mode selection menu like the pre_auton() in other environments can be implemented in this task if desired.
  */
 
-//initialize encoder
+//create encoder structs
 Encoder baseEnc;
 Encoder tBaseEnc;
 
 void initialize() {
+	//initialize encoder
 	baseEnc = encoderInit(4, 5, false);
 	tBaseEnc = encoderInit(2, 3, true);
 
@@ -80,6 +81,7 @@ void initialize() {
 			//TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
 }
 
+//calculate base velocity -- unused hence commented out task above
 float bVelocity = 0, tVelocity = 0;
 void velocityUpdate(void * parameter) {
 	int bEncLast, tEncLast, bEncDelta, tEncDelta;
@@ -100,6 +102,7 @@ void velocityUpdate(void * parameter) {
 	}
 }
 
+//getter for base velocity, again not used
 float velocityGet(bool tether) {
 	if (tether)
 		return tVelocity;
@@ -112,6 +115,7 @@ int sign(int var) {
 	return var / abs(var);
 }
 
+//linearized drive control values
 const int trueBaseSpeed[235] = { -110, -108, -106, -104, -102, -101, -99, -97,
 		-95, -93, -91, -90, -88, -86, -85, -83, -81, -80, -78, -77, -75, -74,
 		-72, -71, -69, -68, -66, -65, -64, -62, -61, -60, -58, -57, -56, -55,

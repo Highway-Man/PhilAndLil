@@ -48,6 +48,7 @@ void tDriveSet(int left, int right) {
 	trDriveSet(right);
 }
 
+//functions to set claw solenoid states (ie open and close) on Phil and Lil
 void clawSet(int state){
 	digitalWrite(RPneuAssist, state);
 }
@@ -58,7 +59,7 @@ void tClawSet(int state){
 int stop = 0;
 //P controller for drving straight
 void straight(long target, int faltDetect) {
-	long timeout = abs(target) * 4;
+	long timeout = abs(target) * 3;
 	long time = 0;
 	int threshold = 20; //how close is good enough
 	int driveCommand;
@@ -89,7 +90,7 @@ void straight(long target, int faltDetect) {
 //P controller for turning
 void turn(long target) {
 	int threshold = 12;	//how close is good enough
-	float kP = 1.0; //proportional constant
+	float kP = 0.75; //proportional constant
 	long timeout = abs(target) * 3;
 	long time = 0;
 	int driveCommand;
@@ -110,7 +111,7 @@ void turn(long target) {
 		delay(20);
 	}
 	//brake!
-	driveSet(-1 * sign(initialError) * 11, 1 * sign(initialError) * 11);
+	driveSet(-1 * sign(initialError) * 8, 1 * sign(initialError) * 8);
 	encoderReset(baseEnc);
 	delay(100);
 }
@@ -118,7 +119,7 @@ void turn(long target) {
 int stopt = 0;
 //P controller for drving straight
 void tStraight(long target, int faltDetect) {
-	long timeout = abs(target) * 4;
+	long timeout = abs(target) * 3;
 	long time = 0;
 	int threshold = 20; //how close is good enough
 	int driveCommand;
@@ -177,78 +178,117 @@ void tTurn(long target) {
 	delay(10);
 }
 
+//Part 1 of Phil's Auton
 #define timeToRaise	300
 void separatePhil(int color) {
+	//wait for Lil
 	delay(timeToRaise);
 	encoderReset(baseEnc);
 	delay(100);
+	//back up
 	straight(-100, 0);
+	//raise the arm
 	armSet(127);
 	delay(100);
 	armSet(-5);
 	delay(3000);
 }
+//second part of Phil's auton
 void scorePhil(int color) {
-	turn(-550);
+	//back up away from Lil
+	straight(-100,0);
+	//turn towards perimeter
+	turn(-350);
+	//drive to perimeter
 	straight(600, 0);
+	//turn away from fence
 	turn(-550);
+	//back up to fence
 	straight(-700, 0);
+	//lower the arm and hold it down
 	armSet(-127);
 	delay(1600);
 	armSet(-10);
 	encoderReset(baseEnc);
 	delay(10);
+	//open the claw
+	clawSet(OPEN);
+	//turn a bit towards corner
 	turn(100);
+	//drive to back towards stars
 	straight(850, 0);
+	//grab stars
+	clawSet(CLOSE);
+	delay(100);
+	//raise and back up
 	armSet(127);
-	delay(400);
 	straight(-900, 0);
 	delay(100);
+	//dump stars
+	clawSet(OPEN);
 	armSet(0);
 	driveSet(0, 0);
 }
+//Part 1 of Lil's Auton routine (runs concurrently with Phil's)
 void separateLil(int color) {
+	//release lift/claw
+	tClawSet(OPEN);
 	tArmSet(80);
 	delay(timeToRaise);
 	tArmSet(0);
 	encoderReset(tBaseEnc);
 	delay(100);
+	//back away from Phil
 	tStraight(-1000, 0);
+	//lower the arm some
 	tArmSet(-127);
-	delay(1600);
+	delay(600);
 	tArmSet(-5);
+	//turn a bit off of wall
+	tTurn(-100);
+	//back up more
 	tStraight(-1200, 0);
 	tDriveSet(0, 0);
 }
+//Part 2 of Lil's auton routine, runs simultaneosuly with whatever Phil is doing
 void scoreLil(int color) {
-	tArmSet(127);
-	delay(150);
-	tArmSet(-1);
+//	tArmSet(127);
+//	delay(150);
+//	tArmSet(-1);
+	//turn towards perimeter
 	tTurn(600);
+	//drive to perimeter
 	tStraight(750, 0);
-	tTurn(550);
+	//turn away from fence
+	tTurn(400);
+	//back up to fence
 	tStraight(-700, 0);
+	//lower arm
 	tArmSet(-127);
 	delay(1300);
 	tArmSet(-10);
 	encoderReset(tBaseEnc);
+	//turn a bit towards the stars
 	tTurn(-100);
+	//drive up to the stars
 	tStraight(870, 0);
+	//grab them
+	tClawSet(CLOSE);
+	delay(100);
+	//raise and back up
 	tArmSet(127);
-	delay(500);
 	tStraight(-900, 0);
 	delay(100);
+	//dump stars
+	tClawSet(OPEN);
 	tArmSet(0);
 	tDriveSet(0, 0);
 }
 
-//deploy intake, raise lift & drive to fence, outtake
-//only a framework; will need to be adjusted on actual field
-void standardAuton() {
 
-}
-
+//function that was used to generate linearized drive control values
 void calBase() {
+	//sety base to every drive control value and calculate the velocity, report results
 	for (int i = 0; i < 128; i++) {
 		driveSet(i, i);
 		delay(2000);
@@ -263,15 +303,27 @@ void calBase() {
 	}
 }
 
+//Phil's auton task, using above functions
 void autonPhil(void * parameter) {
+//	while(1){
+//		printf("%d, ", encoderGet(baseEnc));
+//		delay(100);
+//	}
+	//Part 1
 	separatePhil(0);
+	//Part 2
 	scorePhil(0);
+	//done
 	taskDelete(autonPhilHandle);
 }
 
+//Lil's autnon task using above functions
 void autonLil(void * parameter) {
+	//Part 1
 	separateLil(0);
+	//Part 2
 	scoreLil(0);
+	//done
 	taskDelete(autonLilHandle);
 }
 
@@ -286,11 +338,12 @@ void autonLil(void * parameter) {
  */
 void autonomous() {
 	//delay(5000);
+	//start both auton tasks with default stack and priority
 	autonPhilHandle = taskCreate(autonPhil, TASK_DEFAULT_STACK_SIZE, NULL,
 	TASK_PRIORITY_DEFAULT);
 	autonLilHandle = taskCreate(autonLil, TASK_DEFAULT_STACK_SIZE, NULL,
 	TASK_PRIORITY_DEFAULT);
-	print("done");
+	print("started");
 	delay(5000);
 	while (1){
 		delay(20);
