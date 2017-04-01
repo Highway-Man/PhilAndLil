@@ -83,6 +83,9 @@ void operatorControl() {
 //variables to hold previous arm directions
 	short armLast = 0;
 	short armTLast = 0;
+
+	rerunRecordHandle = taskCreate(rerunRecord,TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
+
 //begin tele-op loop
 	while (true) {
 		//set drive motors with a deadband of 5
@@ -175,4 +178,36 @@ void operatorControl() {
 
 		delay(20);
 	}
+}
+
+typedef struct motors{
+	char leftDrive[600];
+	char rightDrive[600];
+	char lift[600];
+	char claw[600];
+}motors;
+
+motors phil;
+
+void rerunRecord(void * parameter) {
+	while(true){
+			for(int i=0; i<600; i++){
+				phil.leftDrive[i] = motorGet(flDrive);
+				phil.rightDrive[i] = motorGet(arDrive);
+				phil.lift[i] = motorGet(rArm);
+				phil.claw[i] = digitalRead(RPneuAssist);
+				delay(20);
+		}
+			rerunSave();
+		taskDelete(rerunRecordHandle);
+	}
+}
+
+void rerunSave(){
+	FILE my_auto = fopen("rer", "w");
+	for(int i=0; i<600; i++){
+		fputc(phil.leftDrive[i], my_auto);
+		fprint(", ", my_auto);
+	}
+	fclose(my_auto);
 }

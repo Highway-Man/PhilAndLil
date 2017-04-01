@@ -204,6 +204,7 @@ float velocityGet(bool tether);
 //create autonomous task handles
 TaskHandle autonPhilHandle;
 TaskHandle autonLilHandle;
+TaskHandle rerunRecordHandle;
 
 //declare linearized drive control values array
 const int trueBaseSpeed[235];
