@@ -46,8 +46,8 @@ void rDriveSet(int control) {
 	motorSet(arDrive, control);
 }
 void armSet(int control) {
-	motorSet(lArm, -control);
-	motorSet(rArm, control);
+	motorSet(lArm, control);
+	motorSet(rArm, -control);
 }
 
 void tlDriveSet(int control) {
@@ -58,6 +58,155 @@ void trDriveSet(int control) {
 }
 void tArmSet(int control) {
 	motorSet(tArm, control);
+}
+
+#define recordLength 1500
+typedef struct motors {
+	char leftDrive[recordLength];
+	char rightDrive[recordLength];
+	char lift[recordLength];
+	char claw[recordLength];
+} motors;
+
+motors phil;
+motors lil;
+
+void rerunSave() {
+	FILE *my_auto = fopen("rer", "w");
+	for (int i = 0; i < recordLength; i++) {
+		fputc(phil.leftDrive[i], my_auto);
+		//fprint(", ", my_auto);
+	}
+	//fprint("\n rightDrive \n", my_auto);
+	for (int i = 0; i < recordLength; i++) {
+		fputc(phil.rightDrive[i], my_auto);
+	}
+	//fprint("\n lift \n", my_auto);
+	for (int i = 0; i < recordLength; i++) {
+		fputc(phil.lift[i], my_auto);
+	}
+	//fprint("\n claw \n", my_auto);
+	for (int i = 0; i < recordLength; i++) {
+		fputc(phil.claw[i], my_auto);
+	}
+	fclose(my_auto);
+}
+
+void rerunSaveLil(){
+	FILE *my_auto = fopen("rerl", "w");
+	for (int i = 0; i < recordLength; i++) {
+		fputc(lil.leftDrive[i], my_auto);
+		//fprint(", ", my_auto);
+	}
+	//fprint("\n rightDrive \n", my_auto);
+	for (int i = 0; i < recordLength; i++) {
+		fputc(lil.rightDrive[i], my_auto);
+	}
+	//fprint("\n lift \n", my_auto);
+	for (int i = 0; i < recordLength; i++) {
+		fputc(lil.lift[i], my_auto);
+	}
+	//fprint("\n claw \n", my_auto);
+	for (int i = 0; i < recordLength; i++) {
+		fputc(lil.claw[i], my_auto);
+	}
+	fclose(my_auto);
+}
+
+void rerunRecord(void * parameter) {
+	while (true) {
+		for (int i = 0; i < recordLength; i++) {
+			phil.leftDrive[i] = motorGet(flDrive);
+			phil.rightDrive[i] = motorGet(arDrive);
+			phil.lift[i] = motorGet(lArm);
+			phil.claw[i] = digitalRead(RPneuAssist);
+			delay(20);
+		}
+		print("start");
+		rerunSave();
+		print("done");
+		taskDelete(rerunRecordHandle);
+	}
+}
+
+void rerunRecordLil(void * parameter) {
+	while (true) {
+		for (int i = 0; i < recordLength; i++) {
+			lil.leftDrive[i] = motorGet(tlDrive);
+			lil.rightDrive[i] = -motorGet(trDrive);
+			lil.lift[i] = motorGet(tArm);
+			lil.claw[i] = digitalRead(TPneuAssist);
+			delay(20);
+		}
+		print("start");
+		rerunSaveLil();
+		print("done");
+		taskDelete(rerunRecordLilHandle);
+	}
+}
+
+char loadedLeft[recordLength];
+char loadedRight[recordLength];
+char loadedLift[recordLength];
+char loadedClaw[recordLength];
+
+void rerunLoad() {
+	FILE *my_auto = fopen("rer", "r");
+	for (int i = 0; i < recordLength; i++) {
+		loadedLeft[i] = (signed char) fgetc(my_auto);
+	}
+	for (int i = 0; i < recordLength; i++) {
+		loadedRight[i] = (signed char) fgetc(my_auto);
+	}
+	for (int i = 0; i < recordLength; i++) {
+		loadedLift[i] = (signed char) fgetc(my_auto);
+	}
+	for (int i = 0; i < recordLength; i++) {
+		loadedClaw[i] = (signed char) fgetc(my_auto);
+	}
+	fclose(my_auto);
+}
+
+char loadedLLeft[recordLength];
+char loadedLRight[recordLength];
+char loadedLLift[recordLength];
+char loadedLClaw[recordLength];
+
+void rerunLoadLil() {
+	FILE *my_auto = fopen("rerl", "r");
+	for (int i = 0; i < recordLength; i++) {
+		loadedLLeft[i] = (signed char) fgetc(my_auto);
+	}
+	for (int i = 0; i < recordLength; i++) {
+		loadedLRight[i] = (signed char) fgetc(my_auto);
+	}
+	for (int i = 0; i < recordLength; i++) {
+		loadedLLift[i] = (signed char) fgetc(my_auto);
+	}
+	for (int i = 0; i < recordLength; i++) {
+		loadedLClaw[i] = (signed char) fgetc(my_auto);
+	}
+	fclose(my_auto);
+}
+
+void rerunReplay() {
+	for (int i = 0; i < recordLength; i++) {
+		lDriveSet(loadedLeft[i]);
+		rDriveSet(loadedRight[i]);
+		armSet(loadedLift[i]);
+		clawSet(loadedClaw[i]);
+		delay(20);
+	}
+}
+
+void rerunReplayLil() {
+	for (int i = 0; i < recordLength; i++) {
+		tlDriveSet(loadedLLeft[i]);
+		trDriveSet(loadedLRight[i]);
+		tArmSet(loadedLLift[i]);
+		tClawSet(loadedLClaw[i]);
+		delay(20);
+	}
 }
 
 /**
@@ -76,15 +225,40 @@ void operatorControl() {
 //	while(powerLevelBackup() < 100){
 //		delay(20);
 //	}
-	delay(2000);
-	autonomous();
+//	delay(2000);
+//	autonomous();
 //	while(1)
 //		delay(20);
 //variables to hold previous arm directions
+
 	short armLast = 0;
 	short armTLast = 0;
 
-	rerunRecordHandle = taskCreate(rerunRecord,TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
+//	while (1) {
+//		if (V) {
+//			rerunRecordHandle = taskCreate(rerunRecord, TASK_DEFAULT_STACK_SIZE,
+//					NULL,
+//					TASK_PRIORITY_DEFAULT);
+//			break;
+//		} else if (X) {
+//			rerunLoad();
+//			rerunReplay();
+//		} else if (P_V) {
+//			rerunRecordLilHandle = taskCreate(rerunRecordLil, TASK_DEFAULT_STACK_SIZE,
+//					NULL,
+//					TASK_PRIORITY_DEFAULT);
+//			break;
+//		}
+//		else if(P_X){
+//			rerunLoadLil();
+//			rerunReplayLil();
+//		}
+//		else if(O){
+//			rerunLoad();
+//			rerunLoadLil();
+//			autonomous();
+//		}
+//	}
 
 //begin tele-op loop
 	while (true) {
@@ -103,27 +277,22 @@ void operatorControl() {
 			armSet(127);
 		else if (L2)
 			armSet(-127);
-		else if (R1)
-			armSet(70);
-		else if (R2)
-			armSet(-70);
 		else if (armLast < 0)
-			armSet(-12);
+			armSet(-10);
 		else if (armLast > 0)
-			armSet(12);
+			armSet(10);
 		else
 			armSet(0);
 
 		//Phil pneu claw
-		if(X){
+		if (R2) {
 			clawSet(OPEN);
-		}
-		else if(V){
+		} else if (R1) {
 			clawSet(CLOSE);
 		}
 
 		//save previous direction of arm
-		armLast = motorGet(rArm);
+		armLast = motorGet(lArm);
 
 //---------------------------------------------------------------------------------------
 
@@ -142,21 +311,19 @@ void operatorControl() {
 			tArmSet(127);
 		else if (P_L2)
 			tArmSet(-127);
-		else if (P_R1)
-			tArmSet(120);
-		else if (P_R2)
-			tArmSet(-120);
-		else if (armTLast == -127 || armTLast == -7)
-			tArmSet(-7);
-		else if (armTLast == 127 || armTLast == 7)
-			tArmSet(7);
+		else if (P_X)
+			tArmSet(0);
+		else if (armTLast == -127 || armTLast == -10)
+			tArmSet(-10);
+		else if (armTLast == 127 || armTLast == 10)
+			tArmSet(10);
 		else
 			tArmSet(0);
 
 		//pneu claw for lil
-		if(P_X)
+		if (P_R2)
 			tClawSet(OPEN);
-		else if(P_V)
+		else if (P_R1)
 			tClawSet(CLOSE);
 
 		//record last direction
@@ -171,43 +338,11 @@ void operatorControl() {
 		//	encoderReset(baseEnc);
 		//	autonomous();
 		//}
-		if(joystickGetDigital(1,8,JOY_DOWN)){
-			encoderReset(baseEnc);
-			encoderReset(tBaseEnc);
-		}
+//		if(joystickGetDigital(1,8,JOY_DOWN)){
+//			encoderReset(baseEnc);
+//			encoderReset(tBaseEnc);
+//		}
 
 		delay(20);
 	}
-}
-
-typedef struct motors{
-	char leftDrive[600];
-	char rightDrive[600];
-	char lift[600];
-	char claw[600];
-}motors;
-
-motors phil;
-
-void rerunRecord(void * parameter) {
-	while(true){
-			for(int i=0; i<600; i++){
-				phil.leftDrive[i] = motorGet(flDrive);
-				phil.rightDrive[i] = motorGet(arDrive);
-				phil.lift[i] = motorGet(rArm);
-				phil.claw[i] = digitalRead(RPneuAssist);
-				delay(20);
-		}
-			rerunSave();
-		taskDelete(rerunRecordHandle);
-	}
-}
-
-void rerunSave(){
-	FILE my_auto = fopen("rer", "w");
-	for(int i=0; i<600; i++){
-		fputc(phil.leftDrive[i], my_auto);
-		fprint(", ", my_auto);
-	}
-	fclose(my_auto);
 }

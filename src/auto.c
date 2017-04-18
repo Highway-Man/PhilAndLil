@@ -192,9 +192,14 @@ void separatePhil(int color) {
 	delay(100);
 	armSet(-5);
 	delay(3000);
+	armSet(0);
+	driveSet(0,0);
 }
 //second part of Phil's auton
 void scorePhil(int color) {
+	armSet(-127);
+	delay(800);
+	armSet(-10);
 	//back up away from Lil
 	straight(-100,0);
 	//turn towards perimeter
@@ -221,11 +226,11 @@ void scorePhil(int color) {
 	clawSet(CLOSE);
 	delay(100);
 	//raise and back up
-	armSet(127);
-	straight(-900, 0);
-	delay(100);
-	//dump stars
-	clawSet(OPEN);
+//	armSet(127);
+//	straight(-900, 0);
+//	delay(100);
+//	//dump stars
+//	clawSet(OPEN);
 	armSet(0);
 	driveSet(0, 0);
 }
@@ -239,7 +244,7 @@ void separateLil(int color) {
 	encoderReset(tBaseEnc);
 	delay(100);
 	//back away from Phil
-	tStraight(-1000, 0);
+	tStraight(-600, 0);
 	//lower the arm some
 	tArmSet(-127);
 	delay(600);
@@ -247,7 +252,8 @@ void separateLil(int color) {
 	//turn a bit off of wall
 	tTurn(-100);
 	//back up more
-	tStraight(-1200, 0);
+	//tStraight(-1200, 0);
+	tArmSet(0);
 	tDriveSet(0, 0);
 }
 //Part 2 of Lil's auton routine, runs simultaneosuly with whatever Phil is doing
@@ -258,11 +264,11 @@ void scoreLil(int color) {
 	//turn towards perimeter
 	tTurn(600);
 	//drive to perimeter
-	tStraight(750, 0);
+	tStraight(750, 1);
 	//turn away from fence
 	tTurn(400);
 	//back up to fence
-	tStraight(-700, 0);
+	tStraight(-700, 1);
 	//lower arm
 	tArmSet(-127);
 	delay(1300);
@@ -271,16 +277,16 @@ void scoreLil(int color) {
 	//turn a bit towards the stars
 	tTurn(-100);
 	//drive up to the stars
-	tStraight(870, 0);
+	tStraight(870, 1);
 	//grab them
 	tClawSet(CLOSE);
 	delay(100);
 	//raise and back up
-	tArmSet(127);
-	tStraight(-900, 0);
-	delay(100);
-	//dump stars
-	tClawSet(OPEN);
+//	tArmSet(127);
+//	tStraight(-900, 1);
+//	delay(100);
+//	//dump stars
+//	tClawSet(OPEN);
 	tArmSet(0);
 	tDriveSet(0, 0);
 }
@@ -305,25 +311,13 @@ void calBase() {
 
 //Phil's auton task, using above functions
 void autonPhil(void * parameter) {
-//	while(1){
-//		printf("%d, ", encoderGet(baseEnc));
-//		delay(100);
-//	}
-	//Part 1
-	separatePhil(0);
-	//Part 2
-	scorePhil(0);
-	//done
+	rerunReplay();
 	taskDelete(autonPhilHandle);
 }
 
 //Lil's autnon task using above functions
 void autonLil(void * parameter) {
-	//Part 1
-	separateLil(0);
-	//Part 2
-	scoreLil(0);
-	//done
+	rerunReplayLil();
 	taskDelete(autonLilHandle);
 }
 
