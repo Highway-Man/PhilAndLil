@@ -165,6 +165,7 @@ typedef enum {
 #define L2	joystickGetDigital(1,5,JOY_DOWN)
 #define X	joystickGetDigital(1,8,JOY_DOWN)
 #define	V	joystickGetDigital(1,8,JOY_UP)
+#define O	joystickGetDigital(1,8,JOY_RIGHT)
 
 //Partner controller definitions
 #define P_L_JOY	joystickGetAnalog(2,3)
@@ -205,12 +206,17 @@ float velocityGet(bool tether);
 TaskHandle autonPhilHandle;
 TaskHandle autonLilHandle;
 TaskHandle rerunRecordHandle;
+TaskHandle rerunRecordLilHandle;
 
 //declare linearized drive control values array
 const int trueBaseSpeed[235];
 
 //auton routines
 void standardAuton(void);
+void rerunReplay(void);
+void rerunReplayLil(void);
+void autonPhil();
+void autonLil();
 
 // End C++ export structure
 #ifdef __cplusplus
